@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  # Local Llama 3.2 3B Server
+  llama-local:
+    image: ollama/ollama:latest
+    container_name: llama-local
+    ports:
+      - "11434:11434"
+    volumes:
+      - ../models:/root/.ollama
+      - ./logs:/app/logs
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+      - OLLAMA_MODELS=/root/.ollama
+      - OLLAMA_KEEP_ALIVE=30
+      - OLLAMA_MAX_LOADED_MODELS=3
+      - OLLAMA_NUM_PARALLEL=2
+      - OLLAMA_MAX_QUEUE=512
+      - OLLAMA_TIMEOUT=60
+    command: >
+      sh -c "
+        echo ' Downloading Llama 3.2 3B model...' &&
+        ollama pull llama3.2:3b &&
+        echo ' Starting Ollama server...' &&
+        ollama serve
+      "
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    networks:
+      - llama-network
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+          cpus: '4.0'
+        reservations:
+          memory: 4G
+          cpus: '2.0'
+
+networks:
+  llama-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+volumes:
+  models:
+  logs:
