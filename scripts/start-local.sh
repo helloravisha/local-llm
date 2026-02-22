@@ -64,7 +64,7 @@ for i in {1..10}; do
         docker ps --filter "name=$LLM_NAME" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}\t{{.Image}}"
         exit 0
     fi
-    echo "⏳ Attempt $i/10 - LLM not ready yet..."
+    echo " Attempt $i/10 - LLM not ready yet..."
     sleep 5
 done
 
