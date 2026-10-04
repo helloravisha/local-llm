@@ -181,6 +181,12 @@ brew services restart ollama
 
 ### Docker (fallback)
 
+**Switching back from native** - `start-local.sh` doesn't know about the native service, so if `brew services` still has native Ollama running on port 11434, starting the Docker container will fail to bind the port. Stop native first:
+```bash
+brew services stop ollama
+./scripts/start-local.sh
+```
+
 **Check Container Status**
 ```bash
 docker ps -a --filter "name=llama-local"
