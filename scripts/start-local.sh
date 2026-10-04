@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "🚀 Starting Local LLM Gateway Development"
+echo "Starting Local LLM Gateway Development"
 
 # Configuration
 LLM_NAME="llama-local"
@@ -22,16 +22,16 @@ echo "  Config: $CONFIG_DIR"
 mkdir -p "$MODELS_DIR" "$LOGS_DIR" "$CONFIG_DIR"
 
 # Stop existing container
-echo "🛑 Stopping existing container..."
+echo " Stopping existing container..."
 docker stop "$LLM_NAME" 2>/dev/null || true
 docker rm "$LLM_NAME" 2>/dev/null || true
 
 # Pull latest Ollama image
-echo "📥 Pulling latest Ollama image..."
+echo " Pulling latest Ollama image..."
 docker pull ollama/ollama:latest
 
 # Start LLM container
-echo "🚀 Starting LLM container..."
+echo "Starting LLM container..."
 docker run -d \
   --name "$LLM_NAME" \
   --network llama-network \
@@ -44,11 +44,11 @@ docker run -d \
   -c "exec ollama serve"
 
 # Wait for LLM to be ready
-echo "⏳ Waiting for LLM service to be ready..."
+echo " Waiting for LLM service to be ready..."
 sleep 45
 
 # Health check
-echo "🔍 Checking LLM health..."
+echo "Checking LLM health..."
 for i in {1..10}; do
     if curl -f "http://localhost:$LLM_PORT/api/tags" > /dev/null 2>&1; then
         echo " LLM service is ready after ${i} attempts"
@@ -64,7 +64,7 @@ for i in {1..10}; do
         docker ps --filter "name=$LLM_NAME" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}\t{{.Image}}"
         exit 0
     fi
-    echo "⏳ Attempt $i/10 - LLM not ready yet..."
+    echo " Attempt $i/10 - LLM not ready yet..."
     sleep 5
 done
 
