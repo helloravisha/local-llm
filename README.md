@@ -17,52 +17,19 @@ Both paths serve the exact same API on the same port (`11434`) - switching requi
 
 **Docker (fallback).** Use this if you're not on Apple Silicon, don't want a Homebrew install, or need the containerized isolation for some other reason. It still works, it's just slower on Mac hardware.
 
-## Quick Start - Native (macOS, GPU-accelerated)
+## Quick Start
 
-### Prerequisites
-- Homebrew (https://brew.sh)
+| Step | Native (macOS, GPU) | Docker (fallback) |
+|---|---|---|
+| Prerequisites | Homebrew (https://brew.sh) | Docker installed |
+| Clone | `git clone git@github.com:helloravisha/local-llm.git`<br>`cd local-llm` | `git clone git@github.com:helloravisha/local-llm.git`<br>`cd local-llm` |
+| Setup | `./scripts/setup-native.sh` | `./scripts/setup-development.sh` |
+| Start | `./scripts/start-native.sh` | `./scripts/start-local.sh` |
+| Validate | `./scripts/validate-native.sh` | `./scripts/validate-local.sh` |
 
-### Setup
-```bash
-git clone <repository-url>
-cd local-llm
-./scripts/setup-native.sh
-```
+**Native start** runs Ollama as a persistent background service (via `brew services`, survives reboots/logouts) on port `11434`. If the Docker container is already running on that port, this stops it first (`docker start llama-local` brings it back any time - nothing is removed).
 
-### Start the LLM Service
-```bash
-./scripts/start-native.sh
-```
-This runs Ollama as a persistent background service (via `brew services`, survives reboots/logouts) on port `11434`. If the Docker container is already running on that port, this stops it first (`docker start llama-local` brings it back any time - nothing is removed).
-
-### Validate the Setup
-```bash
-./scripts/validate-native.sh
-```
-Includes an explicit GPU check (`size_vram` from `/api/ps`) - if this ever comes back `0` on Apple Silicon, something's wrong; it should never run on CPU there.
-
-## Quick Start - Docker (fallback)
-
-### Prerequisites
-- Docker installed on your system
-
-### Setup
-```bash
-# Clone and setup
-git clone <repository-url>
-cd local-llm
-./scripts/setup-development.sh
-```
-
-### Start the LLM Service
-```bash
-./scripts/start-local.sh
-```
-
-### Validate the Setup
-```bash
-./scripts/validate-local.sh
-```
+**Native validate** includes an explicit GPU check (`size_vram` from `/api/ps`) - if this ever comes back `0` on Apple Silicon, something's wrong; it should never run on CPU there.
 
 ## Usage
 
