@@ -40,3 +40,18 @@ env/
 .cache/
 tmp/
 temp/
+# =========================
+# Secrets - never commit keys
+# =========================
+abc
+abc.pub
+id_*
+*.pem
+*.key
+*.p12
+
+# =========================
+# Editor swap files
+# =========================
+*.swp
+*.swo
