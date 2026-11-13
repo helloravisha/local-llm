@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  # Local Llama 3.2 3B Server
+  # Local Ollama server: llama3.2:3b and qwen2.5:7b (all models on port 11434, picked per request by "model")
   llama-local:
     image: ollama/ollama:latest
     container_name: llama-local
@@ -17,14 +17,20 @@ services:
       - OLLAMA_MAX_LOADED_MODELS=3
       - OLLAMA_NUM_PARALLEL=2
       - OLLAMA_MAX_QUEUE=512
-      - OLLAMA_TIMEOUT=60
-    command: >
-      sh -c "
-        echo ' Downloading Llama 3.2 3B model...' &&
-        ollama pull llama3.2:3b &&
-        echo ' Starting Ollama server...' &&
-        ollama serve
-      "
+      - OLLAMA_LOAD_TIMEOUT=60s
+    # The image's entrypoint is the ollama binary, so run a shell instead. 'ollama pull' needs a running
+    # server: start it, wait until it answers, pull the models (already-downloaded ones are only checked),
+    # then keep the server in the foreground. Keep the list in line with LLM_MODELS in scripts/start-*.sh.
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        ollama serve &
+        until ollama list > /dev/null 2>&1; do sleep 1; done
+        for m in llama3.2:3b qwen2.5:7b; do
+          echo " Pulling $$m..."
+          ollama pull $$m
+        done
+        wait
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
