@@ -7,13 +7,16 @@ cd "$(dirname "$0")/.."
 
 # Configuration (same port as the Docker path on purpose - no app config changes needed)
 LLM_PORT="11434"
-LLM_MODEL="llama3.2:3b"
+# Every model to have on this server (all served on the same port, chosen by name per request).
+# Keep in line with the Ollama models switched on in the LLM gateway's Model Registry.
+LLM_MODELS="llama3.2:3b qwen2.5:7b"
+LLM_MODEL="${LLM_MODELS%% *}"   # the first one is used for the GPU check below
 DOCKER_CONTAINER="llama-local"
 LOGS_DIR="./logs"
 
 echo "🔧 Configuration:"
 echo "  Port: $LLM_PORT"
-echo "  Model: $LLM_MODEL"
+echo "  Models: $LLM_MODELS"
 echo "  Logs: $LOGS_DIR"
 
 mkdir -p "$LOGS_DIR"
@@ -53,8 +56,11 @@ for i in $(seq 1 15); do
         echo "✅ LLM service is ready after ${i} attempt(s)"
         echo "🌐 LLM available at: http://localhost:$LLM_PORT"
 
-        echo "📥 Pulling model $LLM_MODEL..."
-        ollama pull "$LLM_MODEL"
+        # Already-downloaded models are only checked, not downloaded again
+        for m in $LLM_MODELS; do
+            echo "📥 Pulling model $m..."
+            ollama pull "$m"
+        done
 
         echo ""
         echo "🔍 Confirming GPU (Metal) acceleration..."

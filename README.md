@@ -61,7 +61,7 @@ docker-compose -f docker/docker-compose.local.yml up -d
 
 ## Configuration
 
-- **Model**: Llama 3.2 3B (llama3.2:3b)
+- **Models**: Llama 3.2 3B (`llama3.2:3b`) and Qwen 2.5 7B (`qwen2.5:7b`), set by `LLM_MODELS` in the start scripts; all on the same port, picked by the request's `"model"`
 - **Port**: 11434
 - **Memory Limit**: 8GB
 - **CPU Limit**: 4 cores
@@ -172,10 +172,13 @@ docker stop llama-local && docker rm llama-local
 
 ## Model Information
 
-- **Name**: llama3.2:3b
-- **Size**: ~2GB
-- **Parameters**: 3.2 billion
-- **Quantization**: Q4_K_M
+| Name | Size | Parameters | Quantization | Use |
+|---|---|---|---|---|
+| llama3.2:3b | ~2GB | 3.2 billion | Q4_K_M | Fast default |
+| qwen2.5:7b | ~4.7GB | 7.6 billion | Q4_K_M | Stronger JSON / instructions; the gateway's on-prem fallback |
+
+Both loaded at once need roughly 7GB of memory. To add a model, append it to `LLM_MODELS` in
+`scripts/start-native.sh` and `scripts/start-local.sh`, and switch it on in the LLM gateway's Model Registry.
 
 ## API Reference
 

@@ -5,7 +5,9 @@ echo "Starting Local LLM Gateway Development"
 # Configuration
 LLM_NAME="llama-local"
 LLM_PORT="11434"
-LLM_MODEL="llama3.2:3b"
+# Every model to have on this server (all served on the same port, chosen by name per request).
+# Keep in line with the Ollama models switched on in the LLM gateway's Model Registry.
+LLM_MODELS="llama3.2:3b qwen2.5:7b"
 MODELS_DIR="../models"
 LOGS_DIR="./logs"
 CONFIG_DIR="./config"
@@ -13,7 +15,7 @@ CONFIG_DIR="./config"
 echo "🔧 Configuration:"
 echo "  Container: $LLM_NAME"
 echo "  Port: $LLM_PORT"
-echo "  Model: $LLM_MODEL"
+echo "  Models: $LLM_MODELS"
 echo "  Models: $MODELS_DIR"
 echo "  Logs: $LOGS_DIR"
 echo "  Config: $CONFIG_DIR"
@@ -54,11 +56,13 @@ for i in {1..10}; do
         echo " LLM service is ready after ${i} attempts"
         echo " LLM available at: http://localhost:$LLM_PORT"
         
-        # Pull model after server is ready
-        echo " Pulling model $LLM_MODEL..."
-        docker exec "$LLM_NAME" ollama pull "$LLM_MODEL"
-        
-        echo " Model: $LLM_MODEL"
+        # Pull models after server is ready (already-downloaded ones are only checked)
+        for m in $LLM_MODELS; do
+            echo " Pulling model $m..."
+            docker exec "$LLM_NAME" ollama pull "$m"
+        done
+
+        echo " Models: $LLM_MODELS"
         echo ""
         echo " Container Status:"
         docker ps --filter "name=$LLM_NAME" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}\t{{.Image}}"
